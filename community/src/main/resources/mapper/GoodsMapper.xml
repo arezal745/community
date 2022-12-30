@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.community.dao.GoodsDao">
+    <select id="getGoods" resultType="com.community.bean.GoodsDetails">
+        SELECT * from goods_details where regionname=#{regionname}
+                                      AND status=1
+                                      AND name like #{query}
+    </select>
+
+    <select id="queryUserAddress" resultType="com.community.bean.GoodsDetails">
+        SELECT * FROM merchant where region LIKE #{region}
+    </select>
+
+    <select id="getSV" resultType="java.lang.Integer">
+        SELECT goods_sv.goodsid
+        from goods_details,goods_sv
+        where goods_details.regionname=#{regionname}
+          AND goods_details.status=1
+          AND goods_details.catename=#{catename}
+          AND goods_details.goodsid=goods_sv.goodsid
+        ORDER BY goods_sv.sales_volume DESC LIMIT 1
+    </select>
+
+    <select id="getPic" resultType="com.community.bean.GoodsPicture">
+        SELECT * from goods_picture where goodsid=#{goodsid}
+    </select>
+
+    <select id="cate" resultType="com.community.bean.GoodsCate">
+        SELECT * from goods_category
+    </select>
+
+    <select id="catetag" resultType="com.community.bean.GoodsCate2">
+        SELECT * from goods_cate2 where cateid=#{cateid}
+    </select>
+
+    <select id="cateGoods" resultType="com.community.bean.GoodsDetails">
+        SELECT * from goods_details where regionname=#{region[1]}
+                                      and status=1
+                                      AND catename=#{catename}
+                                      and cateid2=#{cateid2}
+    </select>
+
+    <select id="getCart" resultType="com.community.bean.GoodsCart">
+        SELECT * from goods_cart where userID=#{userID}
+    </select>
+
+    <insert id="addCart">
+        INSERT INTO goods_cart (userID,goodsID,goodsName,goodsPrice,goodsImg,goodsNumber,selected) VALUE (#{userID},#{goodsID},#{goodsName},#{goodsPrice},#{goodsImg},#{goodsNumber},#{selected})
+    </insert>
+
+    <delete id="delCart">
+        DELETE FROM goods_cart WHERE id = #{id} and userID=#{userID}
+    </delete>
+
+    <delete id="clearCart">
+        DELETE FROM goods_cart WHERE userID=#{userID}
+    </delete>
+
+    <select id="getcollect" resultType="com.community.bean.GoodsCollect">
+        SELECT * from goods_collect where userid=#{userid}
+    </select>
+
+    <select id="getcollectDetails" resultType="com.community.bean.goodsDetailsJSON">
+        SELECT goods_details.goodsid,goods_details.name,goods_details.price,goods_details.price2,goods_details.unit,goods_details.inventory,goods_picture.picname1 from goods_details,goods_picture where goods_details.goodsid=#{goodsid} and goods_picture.goodsid=#{goodsid}
+    </select>
+
+    <insert id="addcollect">
+        INSERT INTO goods_collect (id,userid,goodsid) VALUE (#{id},#{userid},#{goodsid})
+    </insert>
+
+    <delete id="delcollect">
+        DELETE FROM goods_collect WHERE userid=#{userid} and goodsid=#{goodsid}
+    </delete>
+
+    <select id="vercollect" resultType="java.lang.Integer">
+        select exists (SELECT id from goods_collect where  userid=#{userid} and goodsid=#{goodsid})
+    </select>
+
+    <select id="getComment" resultType="com.community.bean.GoodsComment">
+        SELECT * from goods_comment where goodsid=#{goodsid}
+    </select>
+
+    <insert id="addComment">
+        INSERT INTO goods_comment (goodsid,userid,userImg,username,goods_estimate,goods_comment,datetime) VALUE (#{goodsid},#{userid},#{userImg},#{username},#{goods_estimate},#{goods_comment},#{datetime})
+    </insert>
+
+    <select id="getDetails" resultType="com.community.bean.GoodsDetails">
+        SELECT * from goods_details where goodsid=#{goodsid}
+    </select>
+
+    <select id="getCookID" resultType="java.lang.Integer">
+        SELECT id from cook_book
+        WHERE mainMaterials LIKE (SELECT main FROM goods_details WHERE goodsid=#{goodsid})
+    </select>
+
+    <select id="getRecommendRecipe" resultType="com.community.bean.CookBook">
+        SELECT co.id,co.img,co.name,co.time,co.foodNumber,co.mainMaterials from cook_book as co WHERE id=#{id}
+    </select>
+
+    <select id="getCookCate" resultType="com.community.bean.CookCate">
+        SELECT * from cook_cate
+    </select>
+
+    <select id="getCookBook" resultType="com.community.bean.CookBook">
+        SELECT id,img,name,foodNumber,favorite from cook_book WHERE
+            cateID LIKE #{query}
+        ORDER BY favorite DESC
+    </select>
+
+    <select id="queryCookBook" resultType="com.community.bean.CookBook">
+        SELECT id,img,name,foodNumber,favorite FROM cook_book WHERE `name` LIKE #{query}
+    </select>
+
+    <select id="cookBookDetail" resultType="com.community.bean.CookBook">
+        SELECT * from cook_book WHERE id=#{id}
+    </select>
+
+    <select id="cookPicDetail" resultType="com.community.bean.CookPic">
+        SELECT * from cook_pic WHERE id=#{id}
+    </select>
+
+    <select id="cookTxtDetail" resultType="com.community.bean.CookTxt">
+        SELECT * from cook_txt WHERE id=#{id}
+    </select>
+
+    <select id="recommendGoods" resultType="com.community.bean.goodsDetailsJSON">
+        SELECT goods_details.unit,goods_details.goodsid,goods_details.`name`,goods_details.main,goods_details.price2,goods_picture.picname1
+        from goods_details,goods_picture
+        WHERE goods_details.main=#{main}
+        AND goods_details.regionname=#{city}
+        AND goods_details.goodsid=goods_picture.goodsid
+        AND  goods_details.inventory!=0
+    </select>
+
+    <select id="getCookcollect" resultType="com.community.bean.CookBook">
+        SELECT cook_book.id,cook_book.img,cook_book.name,cook_book.foodNumber,cook_book.favorite
+        from cook_book,cook_collect
+        WHERE cook_collect.userid=#{userid}
+        AND cook_collect.cookid=cook_book.id
+    </select>
+
+    <insert id="addCookCollect">
+        INSERT INTO cook_collect (userid,cookid) VALUE (#{userid},#{cookid})
+    </insert>
+
+    <delete id="delCookCollect">
+        DELETE FROM cook_collect WHERE userid=#{userid} and cookid=#{cookid}
+    </delete>
+
+    <select id="verCookCollect" resultType="java.lang.Integer">
+        select exists (SELECT id from cook_collect where  userid=#{userid} and cookid=#{cookid})
+    </select>
+
+    <select id="ifCart" resultType="com.community.bean.GoodsCart">
+        select * from goods_cart where userID=#{userID} AND goodsID=#{goodsID}
+    </select>
+
+    <update id="editCart">
+        UPDATE goods_cart
+        SET   goodsNumber=#{goodsNumber}
+        WHERE id=#{id}
+    </update>
+</mapper>

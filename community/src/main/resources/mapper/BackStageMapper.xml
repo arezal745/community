@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.community.dao.BackStageDao">
+
+    <select id="getManager" resultType="com.community.bean.Manager">
+        select * from manager where username=#{username} and password=#{password}
+    </select>
+
+    <insert id="addCate2">
+        insert into goods_cate2
+        values (0,#{catename},#{cateid});
+    </insert>
+    
+    <update id="editCate2">
+        update goods_cate2
+        set  catename=#{catename},cateid=#{cateid}
+        where cateid2=#{cateid2};
+    </update>
+    
+    <delete id="delCate2">
+        delete
+        from goods_cate2
+        where cateid2=#{cateid2};
+    </delete>
+
+    <update id="editCateName">
+        update goods_category
+        set  catename=#{catename}
+        where cateid=#{cateid};
+    </update>
+
+    <select id="getGoodsCateByCateid" resultType="com.community.bean.GoodsCate">
+        select * from goods_category where cateid=#{cateid};
+    </select>
+
+    <update id="editCateImg">
+        update goods_category
+        set  img=#{filename}
+        where cateid=#{cateid};
+    </update>
+
+    <select id="getregisterMerID" resultType="java.lang.Integer">
+        select merchantid from merchant_qualification;
+    </select>
+
+    <select id="getregisterQualification" resultType="com.community.bean.MerchantQualification">
+        select * from merchant_qualification where merchantid=#{merchantid};
+    </select>
+
+    <update id="setMerPass">
+        update merchant_qualification
+        set  status="true",msg="审核通过"
+        where merchantid=#{merchantid};
+    </update>
+
+    <delete id="delCookBook">
+        delete  cook_book,cook_pic,cook_txt
+from cook_book,cook_pic,cook_txt
+where cook_book.id=#{id}
+AND cook_pic.id=#{id}
+AND cook_txt.id=#{id};
+    </delete>
+
+    <delete id="delCookCollect">
+        delete
+        from cook_collect
+        where cookid=#{id};
+    </delete>
+
+    <insert id="addCookBook" useGeneratedKeys="true" keyProperty="id">
+        insert into cook_book
+        values (0,#{img},#{time},#{name},#{foodNumber},#{mainMaterials},#{condiment}
+               ,#{picID},#{descID},#{cateID},#{favorite});
+    </insert>
+
+    <update id="updateCookBookID">
+        update cook_book
+        set  picID=#{id},descID=#{id}
+        where id=#{id};
+    </update>
+
+    <insert id="addCookBookText">
+        insert into cook_txt
+        values (#{id},#{txt1},#{txt2},#{txt3},#{txt4},#{txt5},#{txt6}
+               ,#{txt7},#{txt8},#{txt9},#{txt10},#{txt11},#{txt12},#{txt13}
+               ,#{txt14},#{txt15},#{txt16},#{txt17},#{txt18},#{txt19},#{txt20});
+    </insert>
+
+    <insert id="addCookBookPic">
+        insert into cook_pic
+        values (#{id},#{pic1},#{pic2},#{pic3},#{pic4},#{pic5},#{pic6}
+               ,#{pic7},#{pic8},#{pic9},#{pic10},#{pic11},#{pic12},#{pic13}
+               ,#{pic14},#{pic15},#{pic16},#{pic17},#{pic18},#{pic19},#{pic20});
+    </insert>
+
+    <update id="updateCookBookImg">
+        update cook_book
+        set  img=#{img}
+        where id=#{id};
+    </update>
+
+    <update id="editCookBook">
+        update cook_book
+        set  name=#{name},time=#{time},foodNumber=#{foodNumber},
+             mainMaterials=#{mainMaterials},condiment=#{condiment},cateID=#{cateID}
+        where id=#{id};
+    </update>
+
+    <select id="getCoolTxt" resultType="com.community.bean.CookTxt">
+        select * from cook_txt where id=#{id};
+    </select>
+
+    <update id="editCookBookText">
+        update cook_txt
+        set  txt1=#{txt1},txt2=#{txt2},txt3=#{txt3},txt4=#{txt4}
+          ,txt5=#{txt5},txt6=#{txt6},txt7=#{txt7},txt8=#{txt8}
+          ,txt9=#{txt9},txt10=#{txt10},txt11=#{txt11},txt12=#{txt12}
+          ,txt13=#{txt13},txt14=#{txt14},txt15=#{txt15},txt16=#{txt16}
+          ,txt17=#{txt17},txt18=#{txt18},txt19=#{txt19},txt20=#{txt20}
+        where id=#{id};
+    </update>
+
+    <select id="getCookPic" resultType="com.community.bean.CookPic">
+        select * from cook_pic where id=#{id};
+    </select>
+
+    <update id="editCookBookPic">
+        update cook_pic
+        set  pic1=#{pic1},pic2=#{pic2},pic3=#{pic3},pic4=#{pic4}
+          ,pic5=#{pic5},pic6=#{pic6},pic7=#{pic7},pic8=#{pic8}
+          ,pic9=#{pic9},pic10=#{pic10},pic11=#{pic11},pic12=#{pic12}
+          ,pic13=#{pic13},pic14=#{pic14},pic15=#{pic15},pic16=#{pic16}
+          ,pic17=#{pic17},pic18=#{pic18},pic19=#{pic19},pic20=#{pic20}
+        where id=#{id};
+    </update>
+</mapper>

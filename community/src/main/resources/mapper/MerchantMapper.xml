@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.community.dao.MerchantDao">
+
+<!--    订单-->
+    <select id="getUserMessage" resultType="com.community.bean.Merchant">
+        SELECT * from merchant where username=#{username} AND `password`=#{password}
+    </select>
+
+    <select id="getMerchatByMobile" resultType="com.community.bean.Merchant">
+        SELECT * from merchant where mobile=#{mobile}
+    </select>
+    <select id="verifyStatusBymobile" resultType="java.lang.String">
+        SELECT merchant_qualification.status from merchant,merchant_qualification
+        where merchantmobile=#{mobile}
+          AND merchant.merchantid=merchant_qualification.merchant.merchantid
+    </select>
+
+    <select id="verifyStatus" resultType="java.lang.String">
+        SELECT merchant_qualification.status from merchant,merchant_qualification
+        where merchant.username=#{username}
+          AND merchant.password=#{password}
+          AND merchant.merchantid=merchant_qualification.merchantid
+    </select>
+
+    <select id="getOrderList" resultType="com.community.bean.OrderList">
+        SELECT order_info.id,order_info.orderNo,`user`.username,`user`.mobile,user_address.detailedAddress,order_info.orderStatus
+        from order_info,user_orders,`user`,user_address
+        WHERE order_info.orderStatus!="退款中"
+          AND order_info.orderStatus!="退款成功"
+          AND order_info.orderStatus!="拒绝退款"
+          AND order_info.orderStatus!="已取消"
+          AND order_info.merchantid=#{merchantid}
+          AND order_info.orderNo=user_orders.orderNo
+          AND user_orders.userID=`user`.id
+          AND user_orders.addressID=user_address.addressid
+        GROUP BY user_orders.orderNo
+    </select>
+
+    <select id="getOrders" resultType="com.community.bean.UserOrders">
+        SELECT * from user_orders
+        where orderNo=#{orderNo}
+
+    </select>
+
+    <select id="getRefundOrders" resultType="com.community.bean.UserOrders">
+        SELECT * from user_orders
+        where orderNo=#{orderNo}
+          and goodsID=#{goodsid}
+    </select>
+
+    <select id="getRider" resultType="com.community.bean.Rider">
+        SELECT rider.* FROM order_info,rider
+        WHERE order_info.orderNo=#{orderNo}
+          AND order_info.riderID=rider.id
+    </select>
+
+    <select id="getRefundOrderList" resultType="com.community.bean.RefundInfo">
+        select * FROM refund_info
+    </select>
+
+<!--    商品-->
+    <select id="cateGoods" resultType="com.community.bean.GoodsDetails">
+        SELECT * from goods_details where merchantid=#{merchantid}
+                                      AND catename=#{catename}
+                                      and cateid2=#{cateid2}
+    </select>
+
+    <select id="getGoods" resultType="com.community.bean.GoodsDetails">
+        SELECT * from goods_details where goodsid=#{goodsid}
+    </select>
+
+    <update id="editGoodsCate">
+        UPDATE goods_details
+        SET   catename=#{catename},cateid2=#{cateid2}
+        WHERE goodsid=#{goodsid}
+    </update>
+
+    <update id="editGoodsStatus">
+        UPDATE goods_details
+        SET   status=#{status}
+        WHERE goodsid=#{goodsid}
+    </update>
+
+    <update id="editGoodsPrice">
+        UPDATE goods_details
+        SET   price2=#{price2}
+        WHERE goodsid=#{goodsid}
+    </update>
+
+    <update id="editGoodsInventory">
+        UPDATE goods_details
+        SET   inventory=#{inventory}
+        WHERE goodsid=#{goodsid}
+    </update>
+
+    <update id="editGoodsName">
+        UPDATE goods_details
+        SET   name=#{name}
+        WHERE goodsid=#{goodsid}
+    </update>
+
+    <insert id="addGoods" useGeneratedKeys="true"  keyProperty="goodsid">
+        INSERT INTO goods_details
+            (goodsid,catename,cateid2,`name`,main,price,price2,unit,inventory,merchantid,regionname,tag,status)
+            VALUE (0,#{catename},#{cateid2},#{name},#{main},#{price},#{price2},#{unit},#{inventory},#{merchantid},#{regionname},#{tag},#{status})
+    </insert>
+
+    <insert id="addGoodsSv">
+        INSERT INTO goods_sv(goodsid) VALUE (#{goodsid})
+    </insert>
+
+    <insert id="uploadGoodsImg">
+        INSERT INTO goods_picture VALUE (#{goodsid},#{picname1},#{picname2},#{picname3},#{picname4},#{picname5},#{goodsid})
+    </insert>
+
+    <update id="editpsd">
+        UPDATE merchant SET  password = #{password} WHERE mobile = #{mobile}
+    </update>
+
+    <insert id="addMenchant" useGeneratedKeys="true"  keyProperty="merchantid">
+        INSERT INTO merchant
+        (merchantid,rid,username,password,mobile,region,regionname)
+            VALUE (0,#{rid},#{username},#{password},#{mobile},#{region},#{regionname})
+    </insert>
+
+    <insert id="merUpload">
+        INSERT INTO merchant_qualification
+            VALUE (#{merchantid},#{storePic},#{businessLicense},#{idCard},#{status},#{msg})
+    </insert>
+    
+    <update id="addIncome">
+        update merchant_monthIncome
+        set monthlyIncome=monthlyIncome+#{sum}
+        where merchantid=#{merchantid}
+        and `month`=#{date}
+    </update>
+
+    <update id="minusIncome">
+        update merchant_monthIncome
+        set monthlyIncome=monthlyIncome-#{sum}
+        where merchantid=#{merchantid}
+          and `month`=#{date}
+    </update>
+
+    <select id="getYearIncome" resultType="com.community.bean.MerYearIncome">
+        SELECT * from merchant_yearincome
+        where merchantid=#{merchantid}
+    </select>
+
+    <select id="getMonthIncome" resultType="com.community.bean.MerMonthIncome">
+        SELECT * from merchant_monthincome
+        where merchantid=#{merchantid}
+          AND `month` LIKE #{year}
+          AND monthlyIncome!=0
+    </select>
+
+    <select id="getMerchant" resultType="com.community.bean.Merchant">
+        select * from merchant where merchantid=#{merchantid};
+    </select>
+
+    <select id="gerMerchantID" resultType="com.community.bean.Merchant">
+        select merchant.* from merchant,merchant_qualification
+        where merchant.merchantid=merchant_qualification.merchantid
+          AND merchant_qualification.`status`="true"
+    </select>
+
+    <select id="getMerchantImg" resultType="java.lang.String">
+        select storePic from merchant_qualification where merchantid=#{merchantid};
+    </select>
+
+    <update id="editMerchant">
+        update merchant
+        set username=#{username},mobile=#{mobile},region=#{region},regionname=#{regionname}
+        where merchantid=#{merchantid}
+    </update>
+
+    <select id="getUser" resultType="com.community.bean.User">
+        SELECT DISTINCT `user`.* from refund_info,`user`,user_orders
+        WHERE refund_info.orderNo=#{orderNo}
+          AND refund_info.orderNo=user_orders.orderNo
+          AND user_orders.userID=`user`.id
+    </select>
+
+    <insert id="InsertMonthIncome">
+        INSERT INTO merchant_monthincome VALUE (#{merchantid},#{month},0)
+    </insert>
+
+    <select id="getYearMonthIncome" resultType="java.lang.Double">
+        select SUM(monthlyIncome) from  merchant_monthincome WHERE merchantid=#{merchantid} AND `month` LIKE #{year}
+    </select>
+
+    <insert id="setYearMonthIncome">
+        INSERT INTO merchant_yearincome VALUE (#{merchantid},#{year},#{annualIncome})
+    </insert>
+
+    <select id="getOrderGoodsid" resultType="com.community.bean.OrderInfo">
+        select * from order_info where orderNo=#{orderNo}
+    </select>
+</mapper>

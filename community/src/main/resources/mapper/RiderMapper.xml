@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.community.dao.RiderDao">
+    <select id="getRiderMessage" resultType="com.community.bean.Rider">
+        select * from rider where username=#{username} and password=#{password}
+    </select>
+
+    <select id="getRiderByMobile" resultType="com.community.bean.Rider">
+        select * from rider where phone=#{phone}
+    </select>
+
+    <insert id="RiderRegister">
+        insert into rider (id,username,`password`,`name`,phone,region)
+        value(0,#{username},#{password},#{name},#{phone},#{region});
+    </insert>
+
+    <select id="getMessage" resultType="com.community.bean.Rider">
+        select * from rider where id=#{id}
+    </select>
+    
+    <update id="editMessage">
+        update rider
+        set  username=#{username},`name`=#{name},phone=#{phone},phone=#{phone}
+        where id=#{id};
+    </update>
+
+    <select id="getOrderList" resultType="com.community.bean.RiderOrder">
+        select DISTINCT order_info.orderNo,merchant.regionname,user_address.detailedAddress from merchant,order_info,user_orders,user_address
+        where merchant.region=#{region}
+          and merchant.merchantid=order_info.merchantid
+          and order_info.orderStatus="待配送"
+          and order_info.orderNo=user_orders.orderNo
+          and user_orders.addressID=user_address.addressid
+    </select>
+
+    <update id="setOrderRide">
+        update order_info
+        set riderID = #{id}
+        where orderNo=#{orderNo};
+    </update>
+
+    <select id="getOrderListByRider" resultType="com.community.bean.RiderOrder">
+        select DISTINCT order_info.orderNo,merchant.regionname,user_address.detailedAddress from merchant,order_info,user_orders,user_address
+        where order_info.orderStatus="配送中"
+          and order_info.riderID=#{id}
+          and merchant.merchantid=order_info.merchantid
+          and order_info.orderNo=user_orders.orderNo
+          and user_orders.addressID=user_address.addressid
+    </select>
+
+    <select id="getOrderListAchieve" resultType="com.community.bean.RiderOrder">
+        select DISTINCT order_info.orderNo,merchant.regionname,user_address.detailedAddress from merchant,order_info,user_orders,user_address
+        where order_info.orderStatus!="配送中"
+          and order_info.riderID=#{id}
+          and merchant.merchantid=order_info.merchantid
+          and order_info.orderNo=user_orders.orderNo
+          and user_orders.addressID=user_address.addressid
+    </select>
+
+    <update id="setPosition">
+        update rider
+        set `position`=#{position},lng=#{lng},lat=#{lat}
+        where id=#{id};
+    </update>
+
+    <update id="editpsd">
+        update rider
+        set `password`=#{password}
+        where phone=#{phone};
+    </update>
+
+    <select id="getUserAddress" resultType="com.community.bean.UserAddress">
+        select DISTINCT user_address.* from order_info,user_orders,user_address
+        where order_info.orderNo=#{orderNo}
+          and order_info.orderNo=user_orders.orderNo
+          and user_orders.addressID=user_address.addressid
+    </select>
+
+    <select id="getMerchant" resultType="com.community.bean.Merchant">
+        select DISTINCT merchant.* from merchant,order_info
+        where order_info.orderNo=#{orderNo}
+          and merchant.merchantid=order_info.merchantid
+    </select>
+
+    <select id="getOrderInfo" resultType="com.community.bean.OrderInfo">
+        select * from order_info
+        where order_info.orderNo=#{orderNo}
+    </select>
+</mapper>

@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.community.dao.UserDao">
+
+    <select id="getUserMessage" resultType="com.community.bean.User">
+        SELECT * from user where username=#{username} AND `password`=#{password}
+    </select>
+
+    <select id="getUserByMobile" resultType="com.community.bean.User">
+        SELECT * from user where mobile=#{mobile}
+    </select>
+
+    <select id="UserTokenVerify" resultType="java.lang.String">
+        SELECT password from user where id=#{id}
+    </select>
+
+    <select id="MerchantTokenVerify" resultType="java.lang.String">
+        SELECT password from merchant where merchantid=#{id}
+    </select>
+
+    <select id="RiderTokenVerify" resultType="java.lang.String">
+        SELECT password from rider where id=#{id}
+    </select>
+
+    <select id="ManagerTokenVerify" resultType="java.lang.String">
+        SELECT password from manager where id=#{id}
+    </select>
+
+    <insert id="setUserMessage">
+        INSERT INTO user (rid,username,password,sex,mobile,userimg) VALUE (#{rid},#{username},#{password},#{sex},#{mobile},#{userimg})
+    </insert>
+
+    <select id="getUser" resultType="com.community.bean.User">
+        SELECT * from user where id=#{id}
+    </select>
+
+    <update id="editUser">
+        UPDATE user SET  mobile = #{mobile} , username= #{username} , sex = #{sex} WHERE id = #{id}
+    </update>
+
+    <update id="editpsd">
+        UPDATE user SET  password = #{password} WHERE mobile = #{mobile}
+    </update>
+
+    <select id="getAddressMessage" resultType="com.community.bean.UserAddress">
+        SELECT * from user_address where userid=#{userid}
+    </select>
+
+    <select id="addressById" resultType="com.community.bean.UserAddress">
+        SELECT * from user_address where addressid=#{addressid}
+    </select>
+
+    <insert id="AddAddress">
+        INSERT INTO user_address (mobile,consignee,address,detailedAddress,userid,tag) VALUE (#{mobile},#{consignee},#{address},#{detailedAddress},#{userid},#{tag})
+    </insert>
+
+    <update id="EditAddress">
+        UPDATE user_address SET  mobile = #{mobile} , consignee = #{consignee} , address = #{address}, detailedAddress = #{detailedAddress},tag=#{tag} WHERE addressid = #{addressid}
+    </update>
+
+    <update id="setAddressStatus">
+        UPDATE user_address SET  status = #{status}  WHERE addressid = #{addressid}
+    </update>
+
+    <delete id="Deladdress">
+        DELETE FROM user_address WHERE addressid = #{addressid}
+    </delete>
+
+    <select id="getUserimg" resultType="com.community.bean.User">
+        SELECT * from user where id=#{id}
+    </select>
+
+    <update id="setUserimg">
+        UPDATE user SET  userimg = #{userimg} WHERE id=#{id}
+    </update>
+
+    <update id="setInventory">
+        UPDATE goods_details SET  inventory = inventory-#{number} WHERE goodsid=#{goodsID}
+    </update>
+
+    <update id="addInventory">
+        UPDATE goods_details SET  inventory = inventory+#{number} WHERE goodsid=#{goodsID}
+    </update>
+
+    <insert id="creatOrder" parameterType="UserOrders" useGeneratedKeys="true" keyProperty="orderID">
+        INSERT INTO user_orders (orderID,userID,addressID,goodsID,goodsName,goodsImg,price,price2,`number`,orderTime,payment,region,status) VALUE (#{orderID},#{userID},#{addressID},#{goodsID},#{goodsName},#{goodsImg},#{price},#{price2},#{number},#{orderTime},#{payment},#{region},#{status})
+    </insert>
+
+    <update id="cancelOrder">
+        UPDATE user_orders,order_info
+        SET  user_orders.status = #{orderStatus},order_info.orderStatus=#{orderStatus}
+        WHERE user_orders.orderNo=#{orderNo} AND order_info.orderNo=#{orderNo}
+    </update>
+
+    <select id="getOrders" resultType="com.community.bean.OrderInfo">
+        SELECT DISTINCT order_info.* from order_info,user_orders
+        WHERE user_orders.userID=#{userID}
+        AND user_orders.orderNo=order_info.orderNo
+    </select>
+
+    <select id="queryOrders" resultType="com.community.bean.OrderInfo">
+        SELECT DISTINCT order_info.* from order_info,user_orders
+        WHERE user_orders.userID=#{userID}
+          AND user_orders.orderNo=order_info.orderNo
+          AND order_info.title LIKE #{query}
+    </select>
+
+    <select id="getUserOrders" resultType="com.community.bean.UserOrders">
+        SELECT user_orders.* from user_orders
+        WHERE orderNo=#{orderNo}
+    </select>
+
+
+    <select id="getOrder" resultType="com.community.bean.UserOrders">
+        SELECT price2,number,goodsName from user_orders where orderID=#{orderID}
+    </select>
+
+    <insert id="setOrderInfo">
+        INSERT INTO order_info (id,title,orderNo,goodsid,totalFee,codeUrl,orderStatus,merchantid) VALUE (#{id},#{title},#{orderNo},#{goodsid},#{totalFee},#{codeUrl},#{orderStatus},#{merchantid})
+    </insert>
+
+    <update id="updataOrderNo">
+        UPDATE user_orders SET  orderNo = #{orderNo} WHERE orderID=#{orderID}
+    </update>
+
+    <update id="updateStatusByOrderNo">
+        UPDATE user_orders,order_info
+        SET   user_orders.`status`=#{type},user_orders.transactionId=#{transactionId},order_info.orderStatus=#{type}
+        WHERE user_orders.orderNo=#{orderNo} AND order_info.orderNo=#{orderNo}
+    </update>
+
+
+    <select id="getOrderStatus" resultType="java.lang.String">
+        select orderStatus from order_info where orderNo=#{orderNo}
+    </select>
+
+    <insert id="setrefundInfo">
+        INSERT INTO refund_info (id,orderNo,refundNo,goodsID,totalFee,refund,reason,refundStatus,beginTime,merchantid)
+        VALUE (#{id},#{orderNo},#{refundNo},#{goodsID},#{totalFee},#{refund},#{reason},#{refundStatus},#{beginTime},#{merchantid})
+    </insert>
+
+
+    <update id="updateStatusByOrderNo1">
+        UPDATE user_orders
+        SET   user_orders.`status`=#{type}
+        WHERE user_orders.orderNo=#{orderNo} AND user_orders.goodsID=#{goodsID}
+    </update>
+
+    <update id="updateStatusByOrderNo2">
+        UPDATE user_orders,order_info
+        SET   user_orders.`status`=#{type},order_info.orderStatus=#{type}
+        WHERE user_orders.orderNo=#{orderNo} AND order_info.orderNo=#{orderNo}
+    </update>
+
+    <update id="updateStatusByRefundNo">
+        UPDATE refund_info
+        SET   refundStatus=#{refundStatus},refundId=#{refundId},endTime=#{endTime}
+        WHERE refundNo=#{refundNo}
+    </update>
+    
+    <update id="updateOrderInfo">
+        UPDATE order_info
+        SET   order_info.orderStatus=#{status}
+        WHERE order_info.orderNo=#{orderNo}
+    </update>
+
+    <select id="getRefundStatus" resultType="com.community.bean.RefundInfo">
+        select * from refund_info where refundNo=#{refundNo}
+    </select>
+
+    <select id="getNative" resultType="java.lang.String">
+        select codeUrl from order_info where orderNo=#{orderNo}
+    </select>
+
+    <update id="uporderInfo">
+        update user_orders
+        set status = "退款中"
+        where orderNo=#{orderNo}
+        and goodsID=#{goodsid};
+    </update>
+
+    <update id="setRefundImg">
+        update refund_info
+        set  refundImg=#{refundImg}
+        where refundNo=#{refundNo}
+    </update>
+
+
+    <select id="queryMerID" resultType="java.lang.Integer">
+        SELECT goods_details.merchantid FROM user_orders,goods_details
+        WHERE orderNo=#{orderNo}
+        AND user_orders.goodsID=goods_details.goodsid
+        LIMIT 0,1
+    </select>
+
+    <update id="setMerID">
+        update refund_info
+        set  merchantid=#{merchantid}
+        where orderNo=#{orderNo}
+    </update>
+
+    <select id="getMerID" resultType="java.lang.Integer">
+        SELECT goods_details.merchantid FROM user_orders,goods_details
+        WHERE user_orders.orderID=#{id}
+          AND user_orders.goodsID=goods_details.goodsid
+    </select>
+
+    <select id="queryRfundNo" resultType="java.lang.String">
+        SELECT refundNo FROM refund_info
+        WHERE orderNo=#{orderNo}
+    </select>
+
+    <update id="upoderStatus">
+        update order_info
+        set  orderStatus=#{refundStatus}
+        where orderNo=#{orderNo}
+    </update>
+
+    <update id="addgoodsSV">
+        update goods_sv
+        set sales_volume=sales_volume+#{number}
+        where goodsid=#{goodsID}
+    </update>
+
+    <select id="getRiderPosition" resultType="com.community.bean.Rider">
+        SELECT rider.* FROM order_info,rider
+        WHERE order_info.orderNo=#{orderNo}
+        and order_info.riderID=rider.id
+    </select>
+</mapper>
